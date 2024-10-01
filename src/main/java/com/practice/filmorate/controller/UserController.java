@@ -35,11 +35,11 @@ public class UserController {
         return users.values();
     }
 
-    @PutMapping("/{userId}")
-    public User update(@PathVariable int userId, @Valid @RequestBody User user) {
-        log.debug("Получен запрос PUT /users/{}", userId);
+    @PutMapping
+    public User update(@Valid @RequestBody User user) {
+        log.debug("Получен запрос PUT /users");
 
-        users.put(userId, user);
+        users.put(user.getId(), user);
         return user;
     }
 }

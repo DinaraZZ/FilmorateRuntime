@@ -38,11 +38,11 @@ public class FilmController {
         return films.values();
     }
 
-    @PutMapping("/{filmId}")
-    public Film update(@PathVariable int filmId, @Valid @RequestBody Film film) {
-        log.debug("Получен запрос PUT /films/{}", filmId);
+    @PutMapping
+    public Film update(@Valid @RequestBody Film film) {
+        log.debug("Получен запрос PUT /films");
 
-        films.put(filmId, film);
+        films.put(film.getId(), film);
         return film;
     }
 }
