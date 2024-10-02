@@ -24,7 +24,7 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         log.debug("Получен запрос POST /users");
 
-        if (user.getName().isBlank()) user.setName(user.getLogin());
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
         user.setId(counter++);
         users.put(user.getId(), user);
         return user;
@@ -39,6 +39,7 @@ public class UserController {
     public User update(@Valid @RequestBody User user) {
         log.debug("Получен запрос PUT /users");
 
+        if(!users.containsKey(user.getId())) throw new IllegalStateException("");
         users.put(user.getId(), user);
         return user;
     }

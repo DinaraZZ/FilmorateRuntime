@@ -42,6 +42,7 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         log.debug("Получен запрос PUT /films");
 
+        if(!films.containsKey(film.getId())) throw new IllegalStateException("");
         films.put(film.getId(), film);
         return film;
     }
