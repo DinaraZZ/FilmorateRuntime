@@ -84,7 +84,7 @@ public class FilmTest {
     }
 
     @Test
-    public void shouldAddIfDescriptionIs1() { // ?????????
+    public void shouldAddIfDescriptionIs1() {
         // должен добавлять, если в описании 1 символ
         Film film = Film.builder()
                 .name("name")
@@ -92,11 +92,7 @@ public class FilmTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120)
                 .build();
-        int expectedAmount = 2;
-
-        /*String expectedMessage = "М";
-        String actualMessage = validateAndGetFirstMessageTemplate(film);
-        Assertions.assertEquals(expectedMessage, actualMessage);*/
+        int expectedAmount = 1;
 
         FilmController controller = new FilmController();
         controller.create(film);

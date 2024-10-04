@@ -1,7 +1,9 @@
+import java.util.Comparator;
 import java.util.List;
 
 public class java_streams {
     public static void main(String[] args) {
+        // 1
         /*List<String> languages = List.of("Java", "Php", "Javascript", "Python");
         List<String> result = languages.stream()
                 .filter(language -> language.length() >= 4)
@@ -9,19 +11,40 @@ public class java_streams {
                 .toList();
         System.out.println(result);*/
 
-        /////////////////////////////////
-        //.foreach(str->sout)
-        System.out.print("Фрукты до 1000: ");
+
+        // 2
+        /*System.out.print("Фрукты до 1000: ");
         products.stream()
                 .filter(product -> product.type.equals(ProductType.FRUIT))
                 .filter(product -> product.price < 1000)
-                .forEach(product -> System.out.print(product.name + " "));
+                .forEach(product -> System.out.print(product.name + " "));*/
 
-        System.out.print("\n\nМолочн. изд -10%: ");
+        // 3
+        /*System.out.print("\n\nМолочн. изд -10%: ");
         products.stream()
                 .filter(product -> product.type.equals(ProductType.DAIRY))
                 .map(product -> new Product(product.name, (int)(product.price*0.9), ProductType.DAIRY))
-                .forEach(product -> System.out.print(product.name + ", " + product.price + "   "));
+                .forEach(product -> System.out.print(product.name + ", " + product.price + "   "));*/
+
+        // 4
+        // Найдите все фрукты, у которых цена меньше 1000 тенге, увеличьте цену каждого из них на 20%,
+        // отсортируйте их по возрастанию цены и соберите результаты в новый список продуктов
+        List<Product> result = products.stream()
+                .filter(product -> product.price < 1000 && product.type.equals(ProductType.FRUIT))
+                .map(product -> new Product(product.name, (int) (product.price * 1.2), ProductType.FRUIT))
+                .sorted(Comparator.comparingInt(Product::price))
+                .toList();
+        System.out.println(result);
+
+        // 5
+        // Найдите общую стоимость всех мясных продуктов, цена которых после скидки в 10% больше
+        // 2000 тенге, отсортируйте их по убыванию цены и выведите названия вместе с их новыми ценами
+        products.stream()
+                .filter(product -> product.type.equals(ProductType.MEAT))
+                .map(product -> new Product(product.name, (int) (product.price * 0.9), ProductType.MEAT))
+                .filter(product -> product.price > 2000)
+                .sorted((p1, p2) -> p2.price - p1.price)
+                .forEach(product -> System.out.print(product.name + ", " + product.price + "\n"));
     }
 
 

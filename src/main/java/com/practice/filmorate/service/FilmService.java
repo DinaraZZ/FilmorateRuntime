@@ -16,11 +16,18 @@ public class FilmService {
     Film add(Film film) {
         return filmStorage.add(film);
     }
-// тут логика
-    // сторадж - хранение объектов
-    // контроллер - вызывает из сервиса
 
-    /*E update(E entity);
-    Optional<E> findById(int id);
-    List<E> findAll();*/
+    Film update(Film film) {
+        return filmStorage.update(film);
+    }
+
+    Optional<Film> findById(int id) {
+        return filmStorage.findById(id);
+    }
+
+    List<Film> findAll() {
+        return filmStorage.findAll();
+    }
+
+    Film like
 }
