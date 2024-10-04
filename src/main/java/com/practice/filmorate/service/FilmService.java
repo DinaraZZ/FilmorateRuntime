@@ -1,5 +1,6 @@
 package com.practice.filmorate.service;
 
+import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.storage.FilmStorage;
 import lombok.AccessLevel;
@@ -44,7 +45,7 @@ public class FilmService {
             update(film);
 
             return film;
-        } else throw new IllegalStateException("Фильм не найден.");
+        } else throw new NotFoundException("Фильм не найден.");
     }
 
     public Film unlike(int filmId, int userId) {
@@ -58,7 +59,7 @@ public class FilmService {
             update(film);
 
             return film;
-        } else throw new IllegalStateException("Фильм не найден.");
+        } else throw new NotFoundException("Фильм не найден.");
     }
 
     public List<Film> topLikedFilms(int count) {

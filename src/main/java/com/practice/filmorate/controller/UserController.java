@@ -1,46 +1,68 @@
 package com.practice.filmorate.controller;
 
-import com.practice.filmorate.model.Film;
 import com.practice.filmorate.model.User;
+import com.practice.filmorate.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int counter = 1;
-
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
 
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.debug("Получен запрос POST /users");
 
-        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
-        user.setId(counter++);
-        users.put(user.getId(), user);
-        return user;
+        return userService.add(user);
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return users.values();
+        return userService.findAll();
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.debug("Получен запрос PUT /users");
 
-        if(!users.containsKey(user.getId())) throw new IllegalStateException("");
-        users.put(user.getId(), user);
-        return user;
+        return userService.update(user);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.debug("Получен запрос PUT /users/{}/friends/{}", id, friendId);
+
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.debug("Получен запрос DELETE /users/{}/friends/{}", id, friendId);
+
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Collection<User> findFriends(@PathVariable int id) {
+        log.debug("Получен запрос GET /users/{}/friends", id);
+
+        return userService.findFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Collection<User> findCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        log.debug("Получен запрос GET /users/{}/friends/common/{}", id, otherId);
+
+        return userService.findCommonFriends(id, otherId);
     }
 }
