@@ -1,5 +1,6 @@
 package com.practice.filmorate.storage.impl;
 
+import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.storage.UserStorage;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class UserStorageImpl implements UserStorage {
 
     @Override
     public User update(User entity) {
-        if(!users.containsKey(entity.getId())) throw new IllegalStateException("");
+        if(!users.containsKey(entity.getId())) throw new NotFoundException("Пользователь не найден");
         users.put(entity.getId(), entity);
         return entity;
     }

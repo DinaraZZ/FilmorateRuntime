@@ -1,8 +1,9 @@
 package com.practice.filmorate.controller;
 
 import com.practice.filmorate.exception.NotFoundException;
-import jakarta.validation.ValidationException;
+import com.practice.filmorate.exception.ValidationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,6 +11,12 @@ import com.practice.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
+    public ErrorResponse handleValidation(final MethodArgumentNotValidException e) {
+        return new ErrorResponse("Ошибка валидации", e.getMessage());
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400

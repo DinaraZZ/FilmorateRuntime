@@ -38,14 +38,14 @@ public class UserService {
 
             Set<Integer> userFriends = user.getFriends();
             userFriends.add(friendId);
-            user.setFriends(userFriends);
+//            user.setFriends(userFriends);
 
             Set<Integer> friendFriends = friend.getFriends();
             friendFriends.add(userId);
-            friend.setFriends(friendFriends);
+//            friend.setFriends(friendFriends);
 
-            userStorage.update(user);
-            userStorage.update(friend);
+//            userStorage.update(user);
+//            userStorage.update(friend);
             return user;
         } else throw new NotFoundException("Пользователь не найден");
     }
@@ -59,14 +59,14 @@ public class UserService {
 
             Set<Integer> userFriends = user.getFriends();
             userFriends.remove(friendId);
-            user.setFriends(userFriends);
+//            user.setFriends(userFriends);
 
             Set<Integer> friendFriends = friend.getFriends();
             friendFriends.remove(userId);
-            friend.setFriends(friendFriends);
+//            friend.setFriends(friendFriends);
 
-            userStorage.update(user);
-            userStorage.update(friend);
+//            userStorage.update(user);
+//            userStorage.update(friend);
             return user;
         } else throw new NotFoundException("Пользователь не найден");
     }
@@ -77,7 +77,9 @@ public class UserService {
             User user = userOpt.get();
             Set<Integer> userFriends = user.getFriends();
 
-            if (userFriends.isEmpty()) return new ArrayList<>();
+            if (userFriends.isEmpty()) {
+                return Collections.EMPTY_LIST;
+            }
 
             return userFriends.stream()
                     .map(friendId -> findById(friendId).get()) // ????????????????????
@@ -95,7 +97,9 @@ public class UserService {
             Set<Integer> firstFriends = firstUser.getFriends();
             Set<Integer> secondFriends = secondUser.getFriends();
 
-            if (firstFriends.isEmpty() || secondFriends.isEmpty()) return new ArrayList<>();
+            if (firstFriends.isEmpty() || secondFriends.isEmpty()) {
+                return Collections.EMPTY_LIST;
+            }
 
             Set<Integer> commonFriends = new HashSet<>(firstFriends);
             commonFriends.retainAll(secondFriends);

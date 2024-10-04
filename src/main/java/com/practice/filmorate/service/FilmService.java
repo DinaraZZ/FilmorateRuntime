@@ -41,8 +41,8 @@ public class FilmService {
             Set<Integer> likes = film.getLikes();
             // добавить проверку существования пользователя
             likes.add(userId);
-            film.setLikes(likes);
-            update(film);
+//            film.setLikes(likes);
+//            update(film);
 
             return film;
         } else throw new NotFoundException("Фильм не найден.");
@@ -55,8 +55,8 @@ public class FilmService {
             Set<Integer> likes = film.getLikes();
             // добавить проверку существования пользователя
             likes.remove(userId);
-            film.setLikes(likes);
-            update(film);
+//            film.setLikes(likes);
+//            update(film);
 
             return film;
         } else throw new NotFoundException("Фильм не найден.");
@@ -65,6 +65,6 @@ public class FilmService {
     public List<Film> topLikedFilms(int count) {
         List<Film> films = findAll();
         films.sort((f1, f2) -> f2.getLikes().size() - f1.getLikes().size());
-        return films.subList(0, 10);
+        return films.subList(0, Math.min(count, films.size()));
     }
 }

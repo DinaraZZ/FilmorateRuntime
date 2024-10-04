@@ -1,5 +1,7 @@
 package com.practice.filmorate.storage.impl;
 
+import com.practice.filmorate.exception.NotFoundException;
+import com.practice.filmorate.exception.ValidationException;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.storage.FilmStorage;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,7 @@ public class FilmStorageImpl implements FilmStorage {
     public Film add(Film entity) {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
         if (entity.getReleaseDate().isBefore(minReleaseDate)) {
-            throw new IllegalStateException("Дата релиза — не раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
         }
 
         entity.setId(counter++);
@@ -29,11 +31,11 @@ public class FilmStorageImpl implements FilmStorage {
 
     @Override
     public Film update(Film entity) {
-        if (!films.containsKey(entity.getId())) throw new IllegalStateException("");
+        if (!films.containsKey(entity.getId())) throw new NotFoundException("");
 
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
         if (entity.getReleaseDate().isBefore(minReleaseDate)) {
-            throw new IllegalStateException("Дата релиза — не раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
         }
 
         films.put(entity.getId(), entity);
