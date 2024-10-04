@@ -1,5 +1,7 @@
 import com.practice.filmorate.controller.FilmController;
 import com.practice.filmorate.model.Film;
+import com.practice.filmorate.service.FilmService;
+import com.practice.filmorate.storage.impl.FilmStorageImpl;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
@@ -76,7 +78,7 @@ public class FilmTest {
                 .build();
         int expectedAmount = 1;
 
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new FilmStorageImpl()));
         controller.create(film);
         int actualAmount = controller.findAll().size();
 
@@ -94,7 +96,7 @@ public class FilmTest {
                 .build();
         int expectedAmount = 1;
 
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new FilmStorageImpl()));
         controller.create(film);
         int actualAmount = controller.findAll().size();
 
@@ -112,7 +114,7 @@ public class FilmTest {
                 .build();
         String expectedMessage = "Дата релиза — не раньше 28 декабря 1895 года";
 
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new FilmStorageImpl()));
         IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
                 () -> controller.create(film));
 
@@ -130,7 +132,7 @@ public class FilmTest {
                 .build();
         int expectedAmount = 1;
 
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new FilmStorageImpl()));
         controller.create(film);
         int actualAmount = controller.findAll().size();
 
@@ -180,7 +182,7 @@ public class FilmTest {
                 .build();
         int expectedAmount = 1;
 
-        FilmController controller = new FilmController();
+        FilmController controller = new FilmController(new FilmService(new FilmStorageImpl()));
         controller.create(film);
         int actualAmount = controller.findAll().size();
 
