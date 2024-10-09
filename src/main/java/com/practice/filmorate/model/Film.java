@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data // constr for final
@@ -30,4 +31,6 @@ public class Film {
     int duration;
 
     Set<Integer> likes = new HashSet<>();
+
+    final Set<Genre> genres = new TreeSet<>();
 }

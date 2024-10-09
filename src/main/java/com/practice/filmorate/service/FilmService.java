@@ -3,7 +3,9 @@ package com.practice.filmorate.service;
 import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.storage.FilmStorage;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
+    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final UserService userService;
 

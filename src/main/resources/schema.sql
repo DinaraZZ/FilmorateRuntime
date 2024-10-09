@@ -8,19 +8,19 @@ drop table if exists genres;
 
 create table if not exists genres
 (
-    id   serial4 primary key,
+    id   serial primary key,
     name varchar not null
 );
 
 create table if not exists mpa
 (
-    id   serial4 primary key,
+    id   serial primary key,
     name varchar(5) not null
 );
 
 create table if not exists films
 (
-    id           serial4 primary key,
+    id           serial primary key,
     name         varchar(255) not null,
     description  varchar(200) not null,
     release_date date         not null,
@@ -31,7 +31,7 @@ create table if not exists films
 
 create table if not exists users
 (
-    id       serial4 primary key,
+    id       serial primary key,
     login    varchar not null unique,
     email    varchar not null unique,
     name     varchar,
@@ -40,7 +40,7 @@ create table if not exists users
 
 create table if not exists films_genres
 (
-    id       serial4 primary key,
+    id       serial primary key,
     film_id  int4 not null,
     genre_id int4 not null,
     foreign key (film_id) references films (id),
@@ -49,7 +49,7 @@ create table if not exists films_genres
 
 create table if not exists films_users_likes
 (
-    id      serial4 primary key,
+    id      serial primary key,
     film_id int4 not null,
     user_id int4 not null,
     foreign key (film_id) references films (id),
@@ -58,7 +58,7 @@ create table if not exists films_users_likes
 
 create table if not exists users_friendship_status
 (
-    id             serial4 primary key,
+    id             serial primary key,
     first_user_id  int4 not null,
     second_user_id int4 not null,
     status         boolean default false,
