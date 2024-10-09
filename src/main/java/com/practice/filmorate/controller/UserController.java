@@ -1,5 +1,6 @@
 package com.practice.filmorate.controller;
 
+import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.service.UserService;
 import jakarta.validation.Valid;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 @RestController
@@ -21,7 +23,7 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        log.debug("Получен запрос POST /users");
+        log.debug("Получен запрос POST /users: {}", user);
 
         return userService.add(user);
     }
@@ -65,4 +67,14 @@ public class UserController {
 
         return userService.findCommonFriends(id, otherId);
     }
+
+   /* @GetMapping("/users/{id}")
+    public User findById(@PathVariable int id) {
+        return User.builder()
+                .id(1)
+                .email("dafaf@fg.ru")
+                .login("sag")
+                .birthday(LocalDate.of(2000,1,1))
+                .name("Name").build();
+    }*/
 }

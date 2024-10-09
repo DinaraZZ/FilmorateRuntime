@@ -75,6 +75,7 @@ public class UserService {
 
         Set<Integer> commonFriends = new HashSet<>(firstFriends);
         commonFriends.retainAll(secondFriends);
+        System.out.println(commonFriends);
 
         return commonFriends.stream()
                 .map(friendId -> getById(friendId)) // ????????????????????

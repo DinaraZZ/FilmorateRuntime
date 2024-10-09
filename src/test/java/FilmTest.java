@@ -1,7 +1,9 @@
 import com.practice.filmorate.controller.FilmController;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.service.FilmService;
+import com.practice.filmorate.service.UserService;
 import com.practice.filmorate.storage.impl.FilmStorageImpl;
+import com.practice.filmorate.storage.impl.UserStorageImpl;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
@@ -182,7 +184,8 @@ public class FilmTest {
                 .build();
         int expectedAmount = 1;
 
-        FilmController controller = new FilmController(new FilmService(new FilmStorageImpl()));
+        FilmController controller = new FilmController
+                (new FilmService(new FilmStorageImpl(), new UserService(new UserStorageImpl())));
         controller.create(film);
         int actualAmount = controller.findAll().size();
 
