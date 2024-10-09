@@ -4,6 +4,7 @@ import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.storage.UserStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

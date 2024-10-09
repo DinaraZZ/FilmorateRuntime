@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data // constr for final
 @Builder
-public class MPA {
+public class Mpa {
     int id;
 
     @NotBlank(message = "Название не может быть пустым")

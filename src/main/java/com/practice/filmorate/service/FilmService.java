@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    @Qualifier("filmDbStorage")
+//    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final UserService userService;
 

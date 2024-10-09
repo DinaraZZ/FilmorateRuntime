@@ -2,10 +2,12 @@ package com.practice.filmorate.storage.impl;
 
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.storage.UserStorage;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class UserDbStorage implements UserStorage {
     @Override
     public User add(User entity) {

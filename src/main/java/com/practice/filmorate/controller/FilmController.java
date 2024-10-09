@@ -1,5 +1,6 @@
 package com.practice.filmorate.controller;
 
+import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.service.FilmService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -22,19 +24,24 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.debug("Получен запрос POST /films");
-
         return filmService.add(film);
     }
 
     @GetMapping
     public Collection<Film> findAll() {
+        log.debug("Получен запрос GET /films");
         return filmService.findAll();
+    }
+
+    @GetMapping("/{id}") // ?
+    public Film findById(@PathVariable int id) {
+        log.debug("Получен запрос GET /films/{}", id);
+        return filmService.findById(id).orElseThrow(() -> new NotFoundException("Фильм не найден"));
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.debug("Получен запрос PUT /films");
-
         return filmService.update(film);
     }
 
