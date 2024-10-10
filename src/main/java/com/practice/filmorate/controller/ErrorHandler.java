@@ -30,9 +30,9 @@ public class ErrorHandler {
         return new ErrorResponse("Не найдено.", e.getMessage());
     }
 
-    /*@ExceptionHandler
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) // 500
     public ErrorResponse handleException(final Exception e) {
         return new ErrorResponse("Возникло исключение.", e.getMessage());
-    }*/
+    }
 }

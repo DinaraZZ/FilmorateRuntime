@@ -15,7 +15,8 @@ values (1, 'Комедия'),
 
 -- Значения для тестов
 insert into FILMS(name, description, release_date, duration, mpa_id)
-values ('First Movie', 'First description', '2000-01-01', 120, 1);
+values ('First Movie', 'First description', '2000-01-01', 111, 1),
+       ('Second Movie', 'Second description', '2000-02-02', 122, 2);
 
 insert into USERS(login, email, name, birthday)
 values ('login1', 'email1@gmail.com', 'Name', '2000-01-01'),
