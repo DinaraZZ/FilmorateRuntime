@@ -6,6 +6,8 @@ import com.practice.filmorate.model.Film;
 import com.practice.filmorate.model.Genre;
 import com.practice.filmorate.model.Mpa;
 import com.practice.filmorate.storage.FilmStorage;
+import com.practice.filmorate.storage.GenreStorage;
+import com.practice.filmorate.storage.MpaStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -20,6 +22,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
 
     private static final LocalDate MIN_RELEASE_DATE =
             LocalDate.of(1895, 12, 28);
@@ -80,8 +84,10 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(String.format(update, "duration"), entity.getDuration(), filmId);
             }
             if (film.getMpa().getId() != entity.getMpa().getId() && entity.getMpa() != null) {
-                // mpa check добавить
-                jdbcTemplate.update(String.format(update, "mpa_id"), entity.getMpa().getId(), filmId);
+                Mpa mpa = mpaStorage.findById(entity.getMpa().getId()).orElse(null);
+                if (mpa != null) {
+                    jdbcTemplate.update(String.format(update, "mpa_id"), entity.getMpa().getId(), filmId);
+                }
                 // нужно ли добавлять условие, если json mpa кинули только name? (если только id - работает)
             }
         } catch (ValidationException e) {
@@ -106,9 +112,11 @@ public class FilmDbStorage implements FilmStorage {
         Set<Genre> newGenres = entity.getGenres();
         for (Genre newGenre : newGenres) {
             if (!oldGenres.contains(newGenre)) {
-                // проверить, существует ли такой жанр
-                jdbcTemplate.update("insert into films_genres(film_id, genre_id) values (?,?)",
-                        filmId, newGenre.getId());
+                Genre genre = genreStorage.findById(newGenre.getId()).orElse(null);
+                if (genre != null) {
+                    jdbcTemplate.update("insert into films_genres(film_id, genre_id) values (?,?)",
+                            filmId, newGenre.getId());
+                }
             }
         }
         for (Genre oldGenre : oldGenres) {
@@ -116,9 +124,9 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update("delete from films_genres where film_id = ? and genre_id = ?",
                         filmId, oldGenre.getId());
             }
-        }
+        } // добавить catch c orelsethrow? genre, mpa
 
-        return entity;
+        return findById(filmId).orElse(entity);
     }
 
     @Override
