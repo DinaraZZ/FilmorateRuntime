@@ -29,6 +29,6 @@ public class GenreController {
     @GetMapping("/{id}") // ?
     public Genre findById(@PathVariable int id) {
         log.debug("Получен запрос GET /genres/{}", id);
-        return genreService.findById(id).orElseThrow(() -> new NotFoundException("Жанр не найден"));
+        return genreService.findById(id);
     }
 }

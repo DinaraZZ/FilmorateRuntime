@@ -1,6 +1,7 @@
 package com.practice.filmorate.service;
 
 import com.practice.filmorate.exception.NotFoundException;
+import com.practice.filmorate.exception.ValidationException;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.storage.FilmStorage;
 import lombok.EqualsAndHashCode;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,12 +19,16 @@ public class FilmService {
 //    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private static final LocalDate MIN_RELEASE_DATE =
+            LocalDate.of(1895, 12, 28);
 
     public Film add(Film film) {
+        releaseDateCheck(film);
         return filmStorage.add(film);
     }
 
     public Film update(Film film) {
+        releaseDateCheck(film);
         return filmStorage.update(film);
     }
 
@@ -59,5 +65,11 @@ public class FilmService {
     private Film getById(int id) {
         return filmStorage.findById(id).orElseThrow(() ->
                 new NotFoundException("Фильм не найден"));
+    }
+
+    private void releaseDateCheck(Film entity) { // перекинуть в Сервис!!
+        if (entity.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+        }
     }
 }

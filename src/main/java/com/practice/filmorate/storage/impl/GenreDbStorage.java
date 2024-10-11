@@ -18,16 +18,6 @@ public class GenreDbStorage implements GenreStorage {
     private static final String SELECT_ALL = "select * from genres";
 
     @Override
-    public Genre add(Genre entity) {
-        return null;
-    }
-
-    @Override
-    public Genre update(Genre entity) {
-        return null;
-    }
-
-    @Override
     public Optional<Genre> findById(int id) {
         return jdbcTemplate.queryForStream(
                         SELECT_ALL + " where id = ?", this::mapRow, id)
@@ -39,7 +29,19 @@ public class GenreDbStorage implements GenreStorage {
         return jdbcTemplate.query(SELECT_ALL, this::mapRow);
     }
 
-    Genre mapRow(ResultSet rs, int rowNum) throws SQLException {
+    @Override
+    public List<Genre> findAllByFilmId(int filmId) {
+        String genresSelect = """
+                select genres.id, genres.name
+                from genres
+                         join films_genres on genres.id = films_genres.genre_id
+                where films_genres.film_id = ?
+                """;
+
+        return jdbcTemplate.query(genresSelect, this::mapRow, filmId);
+    }
+
+    private Genre mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Genre.builder()
                 .id(rs.getInt("id"))
                 .name(rs.getString("name"))

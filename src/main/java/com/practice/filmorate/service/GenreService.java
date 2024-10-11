@@ -1,5 +1,6 @@
 package com.practice.filmorate.service;
 
+import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Genre;
 import com.practice.filmorate.storage.GenreStorage;
 import lombok.RequiredArgsConstructor;
@@ -13,16 +14,8 @@ import java.util.Optional;
 public class GenreService {
     private final GenreStorage genreStorage;
 
-    public Genre add(Genre genre) {
-        return genreStorage.add(genre);
-    }
-
-    public Genre update(Genre genre) {
-        return genreStorage.update(genre);
-    }
-
-    public Optional<Genre> findById(int id) {
-        return genreStorage.findById(id);
+    public Genre findById(int id) {
+        return genreStorage.findById(id).orElseThrow(() -> new NotFoundException("Жанр не найден"));
     }
 
     public List<Genre> findAll() {

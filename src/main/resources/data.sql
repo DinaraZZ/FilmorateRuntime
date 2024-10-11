@@ -14,6 +14,7 @@ values (1, 'Комедия'),
        (6, 'Боевик');
 
 -- Значения для тестов
+/*
 insert into FILMS(name, description, release_date, duration, mpa_id)
 values ('First Movie', 'First description', '2000-01-01', 111, 1),
        ('Second Movie', 'Second description', '2000-02-02', 122, 2);
@@ -28,4 +29,4 @@ values (1, 1), (1, 3);
 
 insert into FILMS_GENRES(film_id, genre_id)
 values (1, 1),
-       (1, 2);
+       (1, 2);*/

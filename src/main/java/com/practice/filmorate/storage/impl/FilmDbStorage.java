@@ -12,10 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -25,22 +25,19 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreStorage genreStorage;
     private final MpaStorage mpaStorage;
 
-    private static final LocalDate MIN_RELEASE_DATE =
-            LocalDate.of(1895, 12, 28);
+
     private static final String SELECT_ALL = """
             select films.id, films.name, films.description,
                    films.release_date, films.duration, films.mpa_id, mpa.name mpa_name
             from FILMS join mpa on films.mpa_id = mpa.id
             """;
-    private static final String SELECT_ID = """
-            select films.id
-            from films
-            """;
 
+    @Transactional
     @Override
-    public Film add(Film entity) {
-        releaseDateCheck(entity);
+    public Film add(Film entity) { // добавлять жанры!!
 
+        mpaStorage.findById(entity.getMpa().getId())
+                .orElseThrow(() -> new ValidationException("MPA не найден"));
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("id");
@@ -55,12 +52,23 @@ public class FilmDbStorage implements FilmStorage {
 
         int id = insert.executeAndReturnKey(map).intValue();
         entity.setId(id);
+        Set<Genre> genres = entity.getGenres();
+
+        Set<Genre> newGenres = new TreeSet<>(genres);
+        entity.setGenres(newGenres);
+
+        jdbcTemplate.batchUpdate("insert into films_genres(film_id, genre_id) values (?,?)",
+                newGenres, newGenres.size(), (ps, genre) -> {
+                    ps.setInt(1, id);
+                    ps.setInt(2, genre.getId());
+                });
+
         return entity;
     }
 
+    @Transactional
     @Override
-    public Film update(Film entity) {
-        releaseDateCheck(entity);
+    public Film update(Film entity) { // !! изменить на батчАпдейт (скидывает запросы за раз)
         // неизменяемое поле - только id
         Film film = findById(entity.getId()).orElseThrow(() ->
                 new NotFoundException("Фильм не найден"));
@@ -82,37 +90,35 @@ public class FilmDbStorage implements FilmStorage {
                 entity.getDuration(), entity.getMpa().getId(), filmId);
 
         // Обновление таблицы LIKES
-        Set<Integer> oldLikes = film.getLikes();
+        /*Set<Integer> oldLikes = film.getLikes();
         Set<Integer> newLikes = entity.getLikes();
         for (Integer newLike : newLikes) {
             // добавить проверку юзера по айди
+            // добавить условие
             jdbcTemplate.update("insert into films_users_likes(film_id, user_id) values(?,?)",
                     filmId, newLike);
         }
         for (Integer oldLike : oldLikes) {
             jdbcTemplate.update("delete from films_users_likes where film_id = ? and user_id = ?",
                     filmId, oldLike);
-        }
+        }*/
 
-        // Обновление таблицы GENRES
-        Set<Genre> oldGenres = film.getGenres();
-        Set<Genre> newGenres = entity.getGenres();
-        for (Genre newGenre : newGenres) {
-            if (!oldGenres.contains(newGenre)) {
-                genreStorage.findById(newGenre.getId())
-                        .orElseThrow(() -> new ValidationException("MPA не найден"));
-                jdbcTemplate.update("insert into films_genres(film_id, genre_id) values (?,?)",
-                        filmId, newGenre.getId());
-            }
-        }
-        for (Genre oldGenre : oldGenres) {
-            if (!newGenres.contains(oldGenre)) {
-                jdbcTemplate.update("delete from films_genres where film_id = ? and genre_id = ?",
-                        filmId, oldGenre.getId());
-            }
-        } // добавить try-catch?
 
-        return findById(filmId).orElse(entity);
+        Set<Genre> genres = entity.getGenres();
+
+        if (genres != null) {
+            Set<Genre> newGenres = new TreeSet<>(genres);
+            jdbcTemplate.batchUpdate("insert into films_genres(film_id, genre_id) values (?,?)",
+                    newGenres, newGenres.size(), (ps, genre) -> {
+                        ps.setInt(1, filmId);
+                        ps.setInt(2, genre.getId());
+                    });
+            entity.getGenres().addAll(film.getGenres());
+        } else {
+            entity.setGenres(film.getGenres());
+        }
+//        entity.s
+        return entity;
     }
 
     @Override
@@ -127,29 +133,12 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(SELECT_ALL, this::mapRow);
     }
 
-    private void releaseDateCheck(Film entity) {
-        if (entity.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        }
-    }
 
-    Film mapRow(ResultSet rs, int rowNum) throws SQLException {
+    Film mapRow(ResultSet rs, int rowNum) throws SQLException { // !! скинуть в жанр-сторадж, переменная для филмАйди
         // Список жанров по id фильма
-        String genresSelect = """
-                select genres.id genre_id, genres.name genre_name
-                from genres
-                         join films_genres on genres.id = films_genres.genre_id
-                where films_genres.film_id = ?
-                """;
+        int filmId = rs.getInt("id");
 
-        List<Genre> genres = jdbcTemplate.query(genresSelect,
-                (rs1, rowNum1) -> {
-                    return Genre.builder()
-                            .id(rs1.getInt("genre_id"))
-                            .name(rs1.getString("genre_name"))
-                            .build();
-                }, rs.getInt("id"));
-
+        List<Genre> genres = genreStorage.findAllByFilmId(filmId);
         Set<Genre> genreSet = new TreeSet<>(genres);
 
         // Список id пользователей, которые поставили лайк фильму
@@ -159,9 +148,7 @@ public class FilmDbStorage implements FilmStorage {
                 where film_id = ?
                 """;
         List<Integer> likes = jdbcTemplate.query(likesSelect,
-                (rs1, rowNum1) -> {
-                    return rs1.getInt("user_id");
-                }, rs.getInt("id"));
+                (rs1, rowNum1) -> rs1.getInt("user_id"), filmId);
         Set<Integer> likesSet = new TreeSet<>(likes);
 
         // Полностью собранный объект Film

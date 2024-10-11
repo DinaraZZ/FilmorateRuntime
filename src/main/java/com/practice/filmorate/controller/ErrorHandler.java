@@ -2,6 +2,7 @@ package com.practice.filmorate.controller;
 
 import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.exception.ValidationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +22,11 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
     public ErrorResponse handleValidation(final ValidationException e) {
+        return new ErrorResponse("Ошибка валидации", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
+    public ErrorResponse handleValidation(final DataIntegrityViolationException e) {
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
