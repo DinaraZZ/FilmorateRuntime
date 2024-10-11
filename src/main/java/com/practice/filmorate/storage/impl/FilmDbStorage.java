@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film add(Film entity) {
-        entityCheck(entity);
+        releaseDateCheck(entity);
 
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
@@ -59,64 +59,50 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film update(Film entity) { // ?? строка, условия(выполнение до след.ошибки)
+    public Film update(Film entity) {
+        releaseDateCheck(entity);
         // неизменяемое поле - только id
         Film film = findById(entity.getId()).orElseThrow(() ->
                 new NotFoundException("Фильм не найден"));
         int filmId = film.getId();
 
         // Обновление таблицы FILMS
-        String update = "update films set %s = ? where id = ?";
-        try {
-            if (!film.getName().equals(entity.getName()) && !entity.getName().isBlank()) {
-                jdbcTemplate.update(String.format(update, "name"), entity.getName(), filmId);
-            }
-            if (!film.getDescription().equals(entity.getDescription()) && !entity.getDescription().isBlank()) {
-                descriptionCheck(entity);
-                jdbcTemplate.update(String.format(update, "description"), entity.getDescription(), filmId);
-            }
-            if (!film.getReleaseDate().equals(entity.getReleaseDate()) && entity.getReleaseDate() != null) {
-                releaseDateCheck(entity);
-                jdbcTemplate.update(String.format(update, "release_date"), entity.getReleaseDate(), filmId);
-            }
-            if (film.getDuration() != entity.getDuration()) {
-                durationCheck(entity);
-                jdbcTemplate.update(String.format(update, "duration"), entity.getDuration(), filmId);
-            }
-            if (film.getMpa().getId() != entity.getMpa().getId() && entity.getMpa() != null) {
-                Mpa mpa = mpaStorage.findById(entity.getMpa().getId()).orElse(null);
-                if (mpa != null) {
-                    jdbcTemplate.update(String.format(update, "mpa_id"), entity.getMpa().getId(), filmId);
-                }
-                // нужно ли добавлять условие, если json mpa кинули только name? (если только id - работает)
-            }
-        } catch (ValidationException e) {
-            String reverseUpdate = """
-                    update films 
-                    set name = ?, description = ?, 
-                    release_date = ?, duration = ?, mpa_id = ?
-                    where id = ?
-                    """;
-            jdbcTemplate.update(reverseUpdate,
-                    film.getName(), film.getDescription(),
-                    film.getReleaseDate(), film.getDuration(), film.getMpa().getId(),
-                    filmId
-            );
-            throw new ValidationException(e.getMessage()); //? не попадает
-        }
+        mpaStorage.findById(entity.getMpa().getId())
+                .orElseThrow(() -> new ValidationException("MPA не найден"));
+        String update = """
+                update films
+                set name = ?,
+                description = ?,
+                release_date = ?,
+                duration = ?,
+                mpa_id = ?
+                where id = ?
+                """;
+        jdbcTemplate.update(update, entity.getName(), entity.getDescription(), entity.getReleaseDate(),
+                entity.getDuration(), entity.getMpa().getId(), filmId);
 
-        // при каких условиях меняется likes?
+        // Обновление таблицы LIKES
+        Set<Integer> oldLikes = film.getLikes();
+        Set<Integer> newLikes = entity.getLikes();
+        for (Integer newLike : newLikes) {
+            // добавить проверку юзера по айди
+            jdbcTemplate.update("insert into films_users_likes(film_id, user_id) values(?,?)",
+                    filmId, newLike);
+        }
+        for (Integer oldLike : oldLikes) {
+            jdbcTemplate.update("delete from films_users_likes where film_id = ? and user_id = ?",
+                    filmId, oldLike);
+        }
 
         // Обновление таблицы GENRES
         Set<Genre> oldGenres = film.getGenres();
         Set<Genre> newGenres = entity.getGenres();
         for (Genre newGenre : newGenres) {
             if (!oldGenres.contains(newGenre)) {
-                Genre genre = genreStorage.findById(newGenre.getId()).orElse(null);
-                if (genre != null) {
-                    jdbcTemplate.update("insert into films_genres(film_id, genre_id) values (?,?)",
-                            filmId, newGenre.getId());
-                }
+                genreStorage.findById(newGenre.getId())
+                        .orElseThrow(() -> new ValidationException("MPA не найден"));
+                jdbcTemplate.update("insert into films_genres(film_id, genre_id) values (?,?)",
+                        filmId, newGenre.getId());
             }
         }
         for (Genre oldGenre : oldGenres) {
@@ -124,7 +110,7 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update("delete from films_genres where film_id = ? and genre_id = ?",
                         filmId, oldGenre.getId());
             }
-        } // добавить catch c orelsethrow? genre, mpa
+        } // добавить try-catch?
 
         return findById(filmId).orElse(entity);
     }
@@ -141,34 +127,9 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(SELECT_ALL, this::mapRow);
     }
 
-    private void entityCheck(Film entity) {
-        nameCheck(entity);
-        descriptionCheck(entity);
-        releaseDateCheck(entity);
-        durationCheck(entity);
-    }
-
-    private void nameCheck(Film entity) {
-        if (entity.getName().isBlank()) {
-            throw new ValidationException("Название не может быть пустым");
-        }
-    }
-
-    private void descriptionCheck(Film entity) {
-        if (entity.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
-    }
-
     private void releaseDateCheck(Film entity) {
         if (entity.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        }
-    }
-
-    private void durationCheck(Film entity) {
-        if (entity.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
 
