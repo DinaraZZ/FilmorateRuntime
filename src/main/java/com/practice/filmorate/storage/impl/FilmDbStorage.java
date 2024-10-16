@@ -25,7 +25,6 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreStorage genreStorage;
     private final MpaStorage mpaStorage;
 
-
     private static final String SELECT_ALL = """
             select films.id, films.name, films.description,
                    films.release_date, films.duration, films.mpa_id, mpa.name mpa_name
@@ -34,10 +33,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Transactional
     @Override
-    public Film add(Film entity) { // добавлять жанры!!
+    public Film add(Film entity) {
 
         mpaStorage.findById(entity.getMpa().getId())
                 .orElseThrow(() -> new ValidationException("MPA не найден"));
+
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("id");
@@ -52,23 +52,24 @@ public class FilmDbStorage implements FilmStorage {
 
         int id = insert.executeAndReturnKey(map).intValue();
         entity.setId(id);
-        Set<Genre> genres = entity.getGenres();
 
-        Set<Genre> newGenres = new TreeSet<>(genres);
-        entity.setGenres(newGenres);
+        if (entity.getGenres() != null) {
+            Set<Genre> sortedGenres = new TreeSet<>(entity.getGenres());
+            entity.setGenres(sortedGenres);
 
-        jdbcTemplate.batchUpdate("insert into films_genres(film_id, genre_id) values (?,?)",
-                newGenres, newGenres.size(), (ps, genre) -> {
-                    ps.setInt(1, id);
-                    ps.setInt(2, genre.getId());
-                });
+            jdbcTemplate.batchUpdate("insert into films_genres(film_id, genre_id) values (?,?)",
+                    sortedGenres, sortedGenres.size(), (ps, genre) -> {
+                        ps.setInt(1, id);
+                        ps.setInt(2, genre.getId());
+                    });
+        }
 
         return entity;
     }
 
     @Transactional
     @Override
-    public Film update(Film entity) { // !! изменить на батчАпдейт (скидывает запросы за раз)
+    public Film update(Film entity) { // ? удаление старых жанров
         // неизменяемое поле - только id
         Film film = findById(entity.getId()).orElseThrow(() ->
                 new NotFoundException("Фильм не найден"));
@@ -103,7 +104,7 @@ public class FilmDbStorage implements FilmStorage {
                     filmId, oldLike);
         }*/
 
-
+        // Обновление таблицы GENRES
         Set<Genre> genres = entity.getGenres();
 
         if (genres != null) {
@@ -117,7 +118,6 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             entity.setGenres(film.getGenres());
         }
-//        entity.s
         return entity;
     }
 
@@ -134,7 +134,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    Film mapRow(ResultSet rs, int rowNum) throws SQLException { // !! скинуть в жанр-сторадж, переменная для филмАйди
+    private Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         // Список жанров по id фильма
         int filmId = rs.getInt("id");
 

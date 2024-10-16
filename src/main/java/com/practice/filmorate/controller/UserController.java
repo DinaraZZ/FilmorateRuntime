@@ -1,6 +1,8 @@
 package com.practice.filmorate.controller;
 
 import com.practice.filmorate.exception.NotFoundException;
+import com.practice.filmorate.exception.ValidationException;
+import com.practice.filmorate.model.Film;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.service.UserService;
 import jakarta.validation.Valid;
@@ -24,8 +26,13 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.debug("Получен запрос POST /users: {}", user);
-
         return userService.add(user);
+    }
+
+    @GetMapping("/{id}") // ?
+    public User findById(@PathVariable int id) {
+        log.debug("Получен запрос GET /users/{}", id);
+        return userService.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
     @GetMapping
@@ -40,41 +47,40 @@ public class UserController {
         return userService.update(user);
     }
 
-    @PutMapping("/users/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable int id, @PathVariable int friendId) {
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Integer id,
+                          @PathVariable Integer friendId) {
         log.debug("Получен запрос PUT /users/{}/friends/{}", id, friendId);
-
-        return userService.addFriend(id, friendId);
+        if (id != friendId) {
+            userService.addFriend(id, friendId);
+        } else {
+            throw new ValidationException("Id пользователя и друга не могут совпадать");
+        }
     }
 
-    @DeleteMapping("/users/{id}/friends/{friendId}")
+    @PutMapping("/{id}/friends")
+    public void addFriendWithoutId(@PathVariable Integer id) {
+        log.debug("Получен запрос PUT /users/{}/friends", id);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
     public User deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         log.debug("Получен запрос DELETE /users/{}/friends/{}", id, friendId);
 
         return userService.deleteFriend(id, friendId);
     }
 
-    @GetMapping("/users/{id}/friends")
+    @GetMapping("/{id}/friends")
     public Collection<User> findFriends(@PathVariable int id) {
         log.debug("Получен запрос GET /users/{}/friends", id);
 
         return userService.findFriends(id);
     }
 
-    @GetMapping("/users/{id}/friends/common/{otherId}")
+    @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> findCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         log.debug("Получен запрос GET /users/{}/friends/common/{}", id, otherId);
 
         return userService.findCommonFriends(id, otherId);
     }
-
-   /* @GetMapping("/users/{id}")
-    public User findById(@PathVariable int id) {
-        return User.builder()
-                .id(1)
-                .email("dafaf@fg.ru")
-                .login("sag")
-                .birthday(LocalDate.of(2000,1,1))
-                .name("Name").build();
-    }*/
 }

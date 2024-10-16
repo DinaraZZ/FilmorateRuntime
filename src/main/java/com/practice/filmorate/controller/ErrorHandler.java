@@ -12,7 +12,6 @@ import com.practice.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
     public ErrorResponse handleValidation(final MethodArgumentNotValidException e) {
@@ -24,6 +23,7 @@ public class ErrorHandler {
     public ErrorResponse handleValidation(final ValidationException e) {
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
     public ErrorResponse handleValidation(final DataIntegrityViolationException e) {

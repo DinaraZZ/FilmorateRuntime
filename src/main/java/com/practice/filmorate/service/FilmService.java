@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-//    @Qualifier("filmDbStorage")
+    //    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final UserService userService;
     private static final LocalDate MIN_RELEASE_DATE =
@@ -40,12 +40,11 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
-    public Film like(int filmId, int userId) {
+    public void like(int filmId, int userId) {
         Film film = getById(filmId);
-        userService.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        userService.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         film.getLikes().add(userId);
-
-        return film;
     }
 
     public Film unlike(int filmId, int userId) {
@@ -56,7 +55,7 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> topLikedFilms(int count) {
+    public List<Film> topLikedFilms(Integer count) {
         List<Film> films = findAll();
         films.sort((f1, f2) -> f2.getLikes().size() - f1.getLikes().size());
         return films.subList(0, Math.min(count, films.size()));

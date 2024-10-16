@@ -30,14 +30,12 @@ public class UserService {
         return userStorage.findAll();
     }
 
-    public User addFriend(int userId, int friendId) {
+    public void addFriend(int userId, int friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
 
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
-
-        return user;
     }
 
     public User deleteFriend(int userId, int friendId) {
@@ -53,7 +51,6 @@ public class UserService {
     public List<User> findFriends(int userId) {
         User user = getById(userId);
         Set<Integer> userFriends = user.getFriends();
-
         if (userFriends.isEmpty()) {
             return Collections.EMPTY_LIST;
         }

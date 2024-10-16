@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -21,7 +20,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.debug("Получен запрос POST /films");
+        log.debug("Получен запрос POST /films: {}", film);
         return filmService.add(film);
     }
 
@@ -43,21 +42,30 @@ public class FilmController {
         return filmService.update(film);
     }
 
-    @PutMapping("/films/{id}/like/{userId}")
-    public Film likeFilm(@PathVariable int id, @PathVariable int userId) {
-        log.debug("Получен запрос PUT /films/{}/like/{}", id, userId);
-        return filmService.like(id, userId);
+    @PutMapping("/{film_id}/like/{id}")
+    public void likeFilm(@PathVariable(required = false) Integer film_id,
+                         @PathVariable(required = false) Integer id) {
+        log.debug("Получен запрос PUT /films/{}/like/{}", film_id, id);
+        if (film_id != null && film_id > 0
+                && id != null & id > 0) {
+            filmService.like(film_id, id);
+        }
     }
 
-    @DeleteMapping("/films/{id}/like/{userId}")
-    public Film unlikeFilm(@PathVariable int id, @PathVariable int userId) {
-        log.debug("Получен запрос DELETE /films/{}/like/{}", id, userId);
-        return filmService.unlike(id, userId);
+    @PutMapping("/like/{id}")
+    public void likeFilmWithoutFilmId(@PathVariable Integer id) {
+
     }
 
-    @GetMapping("/films/popular")
+    @DeleteMapping("/{film_id}/like/{id}")
+    public Film unlikeFilm(@PathVariable Integer film_id, @PathVariable Integer id) {
+        log.debug("Получен запрос DELETE /films/{}/like/{}", film_id, id);
+        return filmService.unlike(film_id, id);
+    }
+
+    @GetMapping("/popular")
     public Collection<Film> topLikedFilms(
-            @RequestParam(name = "count", required = false, defaultValue = "10") int count) {
+            @RequestParam(name = "count", required = false, defaultValue = "10") Integer count) {
         log.debug("Получен запрос GET /films/popular?count={}", count);
         return filmService.topLikedFilms(count);
     }
