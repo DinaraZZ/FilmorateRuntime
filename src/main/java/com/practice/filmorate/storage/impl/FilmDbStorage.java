@@ -123,8 +123,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> findById(int id) {
-        return jdbcTemplate.queryForStream(
+        return jdbcTemplate.query(
                         SELECT_ALL + " where films.id = ?", this::mapRow, id)
+                .stream()
                 .findFirst();
     }
 

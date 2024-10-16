@@ -22,6 +22,7 @@ public class UserService {
         return userStorage.update(user);
     }
 
+    // return type User
     public Optional<User> findById(int id) {
         return userStorage.findById(id);
     }
@@ -31,35 +32,33 @@ public class UserService {
     }
 
     public void addFriend(int userId, int friendId) {
-        User user = getById(userId);
-        User friend = getById(friendId);
+        getById(userId);
+        getById(friendId);
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        userStorage.addFriend(userId, friendId);
     }
 
-    public User deleteFriend(int userId, int friendId) {
-        User user = getById(userId);
-        User friend = getById(friendId);
+    public void deleteFriend(int userId, int friendId) {
+        getById(userId);
+        getById(friendId);
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-
-        return user;
+        userStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> findFriends(int userId) {
         User user = getById(userId);
         Set<Integer> userFriends = user.getFriends();
         if (userFriends.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
+        // todo
         return userFriends.stream()
                 .map(friendId -> getById(friendId))
                 .toList();
     }
 
+    // todo
     public List<User> findCommonFriends(int firstId, int secondId) {
         User firstUser = getById(firstId);
         User secondUser = getById(secondId);

@@ -29,6 +29,7 @@ public class MpaController {
     @GetMapping("/{id}") // ?
     public Mpa findById(@PathVariable int id) {
         log.debug("Получен запрос GET /mpa/{}", id);
+        // todo
         return mpaService.findById(id).orElseThrow(() -> new NotFoundException("MPA не найден"));
     }
 }

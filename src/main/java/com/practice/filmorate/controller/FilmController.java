@@ -33,6 +33,7 @@ public class FilmController {
     @GetMapping("/{id}") // ?
     public Film findById(@PathVariable int id) {
         log.debug("Получен запрос GET /films/{}", id);
+        // todo
         return filmService.findById(id).orElseThrow(() -> new NotFoundException("Фильм не найден"));
     }
 
@@ -46,6 +47,7 @@ public class FilmController {
     public void likeFilm(@PathVariable(required = false) Integer film_id,
                          @PathVariable(required = false) Integer id) {
         log.debug("Получен запрос PUT /films/{}/like/{}", film_id, id);
+        // todo
         if (film_id != null && film_id > 0
                 && id != null & id > 0) {
             filmService.like(film_id, id);
@@ -58,6 +60,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{film_id}/like/{id}")
+    // todo: void
     public Film unlikeFilm(@PathVariable Integer film_id, @PathVariable Integer id) {
         log.debug("Получен запрос DELETE /films/{}/like/{}", film_id, id);
         return filmService.unlike(film_id, id);

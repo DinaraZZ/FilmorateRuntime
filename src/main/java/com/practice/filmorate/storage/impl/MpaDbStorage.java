@@ -17,11 +17,13 @@ public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
     private static final String SELECT_ALL = "select * from mpa";
 
+    // todo: delete
     @Override
     public Mpa add(Mpa entity) {
         return null;
     }
 
+    // todo: delete
     @Override
     public Mpa update(Mpa entity) {
         return null;
@@ -29,8 +31,9 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Optional<Mpa> findById(int id) {
-        return jdbcTemplate.queryForStream(
+        return jdbcTemplate.query(
                         SELECT_ALL + " where id = ?", this::mapRow, id)
+                .stream()
                 .findFirst();
     }
 
@@ -39,7 +42,7 @@ public class MpaDbStorage implements MpaStorage {
         return jdbcTemplate.query(SELECT_ALL, this::mapRow);
     }
 
-    Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
+    private Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Mpa.builder()
                 .id(rs.getInt("id"))
                 .name(rs.getString("name"))

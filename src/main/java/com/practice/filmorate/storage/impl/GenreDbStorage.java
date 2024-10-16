@@ -19,8 +19,9 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Optional<Genre> findById(int id) {
-        return jdbcTemplate.queryForStream(
+        return jdbcTemplate.query(
                         SELECT_ALL + " where id = ?", this::mapRow, id)
+                .stream()
                 .findFirst();
     }
 

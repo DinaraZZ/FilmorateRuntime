@@ -39,24 +39,26 @@ public class UserDbStorage implements UserStorage {
         entity.setId(id);
 
         // Добавление в таблицу USERS_FRIENDSHIP_STATUS
-        Set<Integer> sortedFriends = new TreeSet<>(entity.getFriends());
-        for (Integer friend : sortedFriends) {
-            findById(friend)
-                    .orElseThrow(() -> new NotFoundException("Друг не найден (id: " + friend + ")"));
+        if (entity.getFriends() != null) {
+            Set<Integer> sortedFriends = new TreeSet<>(entity.getFriends());
+            for (Integer friend : sortedFriends) {
+                findById(friend)
+                        .orElseThrow(() -> new NotFoundException("Друг не найден (id: " + friend + ")"));
+            }
+
+            entity.setFriends(sortedFriends);
+
+            jdbcTemplate.batchUpdate("""
+                            insert into users_friendship_status(first_user_id, second_user_id, status)
+                            values (?, ?, ?)
+                            """,
+                    sortedFriends, sortedFriends.size(), (ps, friend) -> {
+                        ps.setInt(1, id);
+                        ps.setInt(2, friend);
+                        ps.setBoolean(3, false);
+                    }
+            );
         }
-
-        entity.setFriends(sortedFriends);
-
-        jdbcTemplate.batchUpdate("""
-                        insert into users_friendship_status(first_user_id, second_user_id, status)
-                        values (?, ?, ?)
-                        """,
-                sortedFriends, sortedFriends.size(), (ps, friend) -> {
-                    ps.setInt(1, id);
-                    ps.setInt(2, friend);
-                    ps.setBoolean(3, false);
-                }
-        );
 
         return entity;
     }
@@ -198,7 +200,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> findById(int id) {
-        return jdbcTemplate.queryForStream(SELECT_ALL + " where id = ?", this::mapRow, id)
+        return jdbcTemplate.query(SELECT_ALL + " where id = ?", this::mapRow, id)
+                .stream()
                 .findFirst();
     }
 
@@ -245,5 +248,37 @@ public class UserDbStorage implements UserStorage {
                 .build();
 
 
+    }
+
+    @Override
+    public void addFriend(int userId, int friendId) {
+        String insert = """
+                insert into 
+                users_friendship_status(first_user_id, second_user_id, status) 
+                values (?,?,?)
+                """;
+        jdbcTemplate.update(insert, userId, friendId, false);
+    }
+
+    @Override
+    public void deleteFriend(int userId, int friendId) {
+        String insert = """
+                delete from 
+                users_friendship_status 
+                where first_user_id = ? and second_user_id = ?
+                """;
+        jdbcTemplate.update(insert, userId, friendId);
+    }
+
+    @Override
+    public List<User> findAllFriends(int userId) {
+        String select = """
+                select u.*
+                from USERS_FRIENDSHIP_STATUS ufs
+                         join
+                     USERS u on ufs.SECOND_USER_ID = u.ID
+                where FIRST_USER_ID = ?
+                """;
+        return jdbcTemplate.query(select, this::mapRow, userId);
     }
 }

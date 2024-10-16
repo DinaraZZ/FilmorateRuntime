@@ -18,6 +18,7 @@ import java.util.Optional;
 public class FilmService {
     //    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
+    // todo: UserStorage
     private final UserService userService;
     private static final LocalDate MIN_RELEASE_DATE =
             LocalDate.of(1895, 12, 28);
@@ -32,6 +33,7 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
+    // todo
     public Optional<Film> findById(int id) {
         return filmStorage.findById(id);
     }
@@ -47,6 +49,7 @@ public class FilmService {
         film.getLikes().add(userId);
     }
 
+    // void
     public Film unlike(int filmId, int userId) {
         Film film = getById(filmId);
         userService.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
@@ -55,6 +58,7 @@ public class FilmService {
         return film;
     }
 
+    // todo
     public List<Film> topLikedFilms(Integer count) {
         List<Film> films = findAll();
         films.sort((f1, f2) -> f2.getLikes().size() - f1.getLikes().size());
