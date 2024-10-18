@@ -43,14 +43,14 @@ public class FilmService {
         Film film = getById(filmId);
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        film.getLikes().add(userId);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void unlike(int filmId, int userId) {
         Film film = getById(filmId);
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        film.getLikes().remove(userId);
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> topLikedFilms(Integer count) {

@@ -178,4 +178,22 @@ public class FilmDbStorage implements FilmStorage {
                 .likes(likesSet)
                 .build();
     }
+
+    @Override
+    public void addLike(int filmId, int userId) {
+        String update = """
+                insert into films_users_likes(film_id, user_id)
+                values (?, ?)
+                """;
+        jdbcTemplate.update(update, filmId, userId);
+    }
+
+    @Override
+    public void removeLike(int filmId, int userId) {
+        String delete = """
+                delete from films_users_likes
+                where film_id = ? and user_id = ?
+                """;
+        jdbcTemplate.update(delete, filmId, userId);
+    }
 }
