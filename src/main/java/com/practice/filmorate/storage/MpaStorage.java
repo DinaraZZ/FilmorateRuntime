@@ -2,5 +2,10 @@ package com.practice.filmorate.storage;
 
 import com.practice.filmorate.model.Mpa;
 
-public interface MpaStorage extends Storage<Mpa> {
+import java.util.List;
+import java.util.Optional;
+
+public interface MpaStorage {
+    Optional<Mpa> findById(int id);
+    List<Mpa> findAll();
 }

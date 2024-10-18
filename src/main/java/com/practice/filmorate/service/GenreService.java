@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +14,8 @@ public class GenreService {
     private final GenreStorage genreStorage;
 
     public Genre findById(int id) {
-        return genreStorage.findById(id).orElseThrow(() -> new NotFoundException("Жанр не найден"));
+        return genreStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("Жанр не найден"));
     }
 
     public List<Genre> findAll() {

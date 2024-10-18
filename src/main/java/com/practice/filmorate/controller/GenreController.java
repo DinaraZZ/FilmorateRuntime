@@ -1,6 +1,5 @@
 package com.practice.filmorate.controller;
 
-import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Genre;
 import com.practice.filmorate.service.GenreService;
 import lombok.RequiredArgsConstructor;

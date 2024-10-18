@@ -1,7 +1,6 @@
 package com.practice.filmorate.storage.impl;
 
 import com.practice.filmorate.exception.NotFoundException;
-import com.practice.filmorate.exception.ValidationException;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.storage.UserStorage;
 import lombok.RequiredArgsConstructor;
@@ -246,8 +245,6 @@ public class UserDbStorage implements UserStorage {
                 .birthday(rs.getDate("birthday").toLocalDate())
                 .friends(friends)
                 .build();
-
-
     }
 
     @Override

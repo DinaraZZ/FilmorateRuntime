@@ -17,18 +17,6 @@ public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
     private static final String SELECT_ALL = "select * from mpa";
 
-    // todo: delete
-    @Override
-    public Mpa add(Mpa entity) {
-        return null;
-    }
-
-    // todo: delete
-    @Override
-    public Mpa update(Mpa entity) {
-        return null;
-    }
-
     @Override
     public Optional<Mpa> findById(int id) {
         return jdbcTemplate.query(

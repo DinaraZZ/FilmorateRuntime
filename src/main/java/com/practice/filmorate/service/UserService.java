@@ -4,7 +4,6 @@ import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.storage.UserStorage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,9 +21,9 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    // return type User
-    public Optional<User> findById(int id) {
-        return userStorage.findById(id);
+    public User findById(int id) {
+        return userStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
     public List<User> findAll() {
@@ -52,13 +51,11 @@ public class UserService {
             return Collections.emptyList();
         }
 
-        // todo
         return userFriends.stream()
                 .map(friendId -> getById(friendId))
                 .toList();
     }
 
-    // todo
     public List<User> findCommonFriends(int firstId, int secondId) {
         User firstUser = getById(firstId);
         User secondUser = getById(secondId);
@@ -75,7 +72,7 @@ public class UserService {
         System.out.println(commonFriends);
 
         return commonFriends.stream()
-                .map(friendId -> getById(friendId)) // ????????????????????
+                .map(friendId -> getById(friendId))
                 .toList();
     }
 

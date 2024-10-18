@@ -1,6 +1,5 @@
 package com.practice.filmorate.controller;
 
-import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Mpa;
 import com.practice.filmorate.service.MpaService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ public class MpaController {
     @GetMapping("/{id}") // ?
     public Mpa findById(@PathVariable int id) {
         log.debug("Получен запрос GET /mpa/{}", id);
-        // todo
-        return mpaService.findById(id).orElseThrow(() -> new NotFoundException("MPA не найден"));
+        return mpaService.findById(id);
     }
 }

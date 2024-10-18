@@ -1,28 +1,21 @@
 package com.practice.filmorate.controller;
 
-import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.exception.ValidationException;
-import com.practice.filmorate.model.Film;
 import com.practice.filmorate.model.User;
 import com.practice.filmorate.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 @Slf4j
 public class UserController {
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
@@ -33,8 +26,7 @@ public class UserController {
     @GetMapping("/{id}") // ?
     public User findById(@PathVariable int id) {
         log.debug("Получен запрос GET /users/{}", id);
-        // todo в сервис
-        return userService.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return userService.findById(id);
     }
 
     @GetMapping
@@ -53,7 +45,6 @@ public class UserController {
     public void addFriend(@PathVariable Integer id,
                           @PathVariable Integer friendId) {
         log.debug("Получен запрос PUT /users/{}/friends/{}", id, friendId);
-        // todo
         if (id != friendId) {
             userService.addFriend(id, friendId);
         } else {

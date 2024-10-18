@@ -34,7 +34,6 @@ public class FilmDbStorage implements FilmStorage {
     @Transactional
     @Override
     public Film add(Film entity) {
-
         mpaStorage.findById(entity.getMpa().getId())
                 .orElseThrow(() -> new ValidationException("MPA не найден"));
 
@@ -62,6 +61,19 @@ public class FilmDbStorage implements FilmStorage {
                         ps.setInt(1, id);
                         ps.setInt(2, genre.getId());
                     });
+        }
+
+        if (entity.getLikes() != null) {
+            Set<Integer> sortedLikes = new TreeSet<>(entity.getLikes());
+            entity.setLikes(sortedLikes);
+
+            jdbcTemplate.batchUpdate("""
+                    insert into films_users_likes(film_id, user_id)
+                    values (?, ?)
+                    """, sortedLikes, sortedLikes.size(), (ps, like) -> {
+                ps.setInt(1, id);
+                ps.setInt(2, like);
+            });
         }
 
         return entity;
@@ -133,7 +145,6 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> findAll() {
         return jdbcTemplate.query(SELECT_ALL, this::mapRow);
     }
-
 
     private Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         // Список жанров по id фильма

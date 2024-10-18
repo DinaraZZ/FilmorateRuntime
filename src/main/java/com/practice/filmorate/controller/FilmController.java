@@ -1,6 +1,5 @@
 package com.practice.filmorate.controller;
 
-import com.practice.filmorate.exception.NotFoundException;
 import com.practice.filmorate.model.Film;
 import com.practice.filmorate.service.FilmService;
 import jakarta.validation.Valid;
@@ -33,8 +32,7 @@ public class FilmController {
     @GetMapping("/{id}") // ?
     public Film findById(@PathVariable int id) {
         log.debug("Получен запрос GET /films/{}", id);
-        // todo
-        return filmService.findById(id).orElseThrow(() -> new NotFoundException("Фильм не найден"));
+        return filmService.findById(id);
     }
 
     @PutMapping
@@ -47,23 +45,17 @@ public class FilmController {
     public void likeFilm(@PathVariable(required = false) Integer film_id,
                          @PathVariable(required = false) Integer id) {
         log.debug("Получен запрос PUT /films/{}/like/{}", film_id, id);
-        // todo
+
         if (film_id != null && film_id > 0
                 && id != null & id > 0) {
             filmService.like(film_id, id);
         }
     }
 
-    @PutMapping("/like/{id}")
-    public void likeFilmWithoutFilmId(@PathVariable Integer id) {
-
-    }
-
     @DeleteMapping("/{film_id}/like/{id}")
-    // todo: void
-    public Film unlikeFilm(@PathVariable Integer film_id, @PathVariable Integer id) {
+    public void unlikeFilm(@PathVariable Integer film_id, @PathVariable Integer id) {
         log.debug("Получен запрос DELETE /films/{}/like/{}", film_id, id);
-        return filmService.unlike(film_id, id);
+        filmService.unlike(film_id, id);
     }
 
     @GetMapping("/popular")
